@@ -9,7 +9,7 @@
 import os
 
 import torch
-
+import sys
 from .models import SeqStyleGAN2
 from collections import defaultdict
 
@@ -35,13 +35,34 @@ def load_state_dict(category):
     except:
         sd = torch.hub.model_zoo.load_url(url)  # pytorch 1.0
     return sd
-    
-def load_seq_stylegan(category, truncation=1.0, **kwargs):  # mconv='seq'):
+
+def const_load_dict(path):
+    if False:
+        sd = torch.load(path)
+    if True:
+        url = 'https://md-project-images.s3.us-west-1.amazonaws.com/images/animals2animals/orig_fg/00_005002.pt'
+        sd = torch.hub.load_state_dict_from_url(url)       
+
+    sd = sd['g_ema']
+    # changing the dictionary to remove 'module'
+    sd_new = {}
+    for key in sd.keys():
+        new_key = key.replace('module.', '')
+        sd_new[new_key] = sd[key]
+    sd = {}
+    sd['g_ema'] = sd_new
+    return sd
+
+def load_seq_stylegan(category, path, truncation=1.0, **kwargs):  # mconv='seq'):
     ''' loads nn sequential version of stylegan2 and puts on gpu'''
-    state_dict = load_state_dict(category)
+    state_dict = const_load_dict(path) 
+    #state_dict = load_state_dict(category)
     size = sizes[category]
     g = SeqStyleGAN2(size, style_dim=512, n_mlp=8, truncation=truncation, **kwargs)
-    g.load_state_dict(state_dict['g_ema'],
-            latent_avg=state_dict['latent_avg'])
+    g.load_state_dict(state_dict['g_ema'])
+            #latent_avg=state_dict['latent_avg'])
     g.cuda()
     return g
+
+
+
