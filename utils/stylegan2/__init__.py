@@ -41,7 +41,7 @@ def const_load_dict(path):
         sd = torch.load(path)
     if True:
         #url = 'https://md-project-images.s3.us-west-1.amazonaws.com/images/animals2animals/orig_fg/00_005002.pt'
-        url = 'https://md-project-images.s3.us-west-1.amazonaws.com/images/animals2animals/orig_fg/005000.pt'
+        url = 'https://md-project-images.s3.us-west-1.amazonaws.com/images/animals2animals/orig_fg/pretrained_ffhq.pt'
         sd = torch.hub.load_state_dict_from_url(url)       
 
     sd = sd['g_ema']
